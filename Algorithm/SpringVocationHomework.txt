@@ -1,0 +1,653 @@
+//
+//  main.cpp
+//  分配问题
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+#include <string.h>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int task[1005][1005];
+int path[1005];
+bool vis[1005];
+vector<vector<int>> res;
+int min_cost=2147483647;
+void dfs(int depth,int sum,int n){
+    if(depth==n+1){
+        if(sum>min_cost)
+            return;
+        if(sum<min_cost){
+            res.clear();
+            min_cost=sum;
+        }
+        vector<int> v;
+        for(int i=1;i<=n;i++)
+            v.push_back(path[i]);
+        res.push_back(v);
+        return;
+    }
+    for(int i=1;i<=n;i++){
+        if(vis[i]==true)
+            continue;
+        vis[i]=true;
+        path[depth]=i;
+        dfs(depth+1,sum+task[depth][i],n);
+        vis[i]=false;
+    }
+}
+int cmp(vector<int> a,vector<int> b){
+    for(int i=0;i<a.size();i++){
+        if(a[i]==b[i])
+            continue;
+        return a[i]>b[i];
+    }
+    return 1;
+}
+int main(int argc, const char * argv[]) {
+    int testcase,n=0;
+    cin>>testcase;
+    cin.get();
+    while(--testcase>=0){
+        //1.处理输入
+        cin>>n;
+        cin.get();
+        char str[10005];
+        cin.getline(str, 10005);
+        for(int i=0;str[i];i++){
+            char num1[10],num2[10],num3[10];
+            memset(num1,'\0',sizeof(num1));
+            memset(num2,'\0',sizeof(num2));
+            memset(num3,'\0',sizeof(num3));
+            int index1=0,index2=0,index3=0;
+            while(str[i]!=' ')
+                num1[index1++]=str[i++];
+            while(str[i]==' ')
+                i++;
+            while(str[i]!=' ')
+                num2[index2++]=str[i++];
+            while(str[i]==' ')
+                i++;
+            while(str[i]!=','&&str[i])
+                num3[index3++]=str[i++];
+            int n1 = atoi(num1);
+            int n2 = atoi(num2);
+            int n3 = atoi(num3);
+            task[n1][n2]=n3;
+        }
+        //print_task(n);
+        //2.深搜所有解并排序
+        dfs(1,0,n);
+        sort(res.begin(),res.end(),cmp);
+        //3.输出结果集
+        int coutCount2=1;
+        for(auto tem:res){
+            if(coutCount2==1)
+                coutCount2++;
+            else
+                cout<<",";
+            int coutCount=1;
+            for(auto t:tem){
+                if(coutCount==1){
+                    cout<<t;
+                    coutCount++;
+                }else{
+                    cout<<" "<<t;
+                }
+            }
+        }
+        cout<<endl;
+        //4.初始化变量
+        res.clear();
+        memset(str,'\0',sizeof(str));
+        memset(vis,0,sizeof(vis));
+        memset(path,0,sizeof(path));
+        for(int sss=0;sss<1005;sss++)
+            for(int ssss=0;ssss<1005;ssss++)
+                task[sss][ssss]=0;
+        min_cost=2147483647;
+    }
+    return 0;
+}
+//4
+//3
+//1 1 1,1 2 1,1 3 1,2 1 1,2 2 1,2 3 1,3 1 1,3 2 1,3 3 1
+//4
+//2 1 6,1 2 2,1 3 7,1 4 8,1 1 9,2 2 4,2 3 3,2 4 7,3 1 5,3 2 8,3 3 1,3 4 8,4 1 7,4 2 6,4 3 9,4 4 4
+//3
+//1 1 1,1 2 1,1 3 1,2 1 1,2 2 1,2 3 1,3 1 1,3 2 1,3 3 1
+//4
+//2 1 6,1 2 2,1 3 7,1 4 8,1 1 9,2 2 4,2 3 3,2 4 7,3 1 5,3 2 8,3 3 1,3 4 8,4 1 7,4 2 6,4 3 9,4 4 4
+
+
+
+
+//
+//  main.cpp
+//  kd树构造和查找
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+#include <queue>
+using namespace std;
+struct point{
+    double x;
+    double y;
+    double distToQ;
+}p[10005];
+int cmp(point a,point b){
+    if(a.distToQ==b.distToQ){
+        if(a.x==b.x)
+            return a.y<b.y;
+        return a.x<b.x;
+    }
+    return a.distToQ<b.distToQ;
+}
+int main()
+{
+    int m=0;
+    int testcase;
+    scanf("%d",&testcase);
+    while(--testcase>=0){
+        //1.输入
+        char str[1005];
+        cin.get();
+        cin.getline(str, 1005);
+        int n=0;
+        for(int i=0;str[i];i++){
+            char num1[10],num2[10];
+            memset(num1,'\0',sizeof(num1));
+            memset(num2,'\0',sizeof(num2));
+            int index1=0,index2=0;
+            while(str[i]!=' '){
+                num1[index1++]=str[i++];
+            }
+            while(str[i]==' ')
+                i++;
+            while(str[i]!=','&&str[i])
+                num2[index2++]=str[i++];
+            double n1 = atof(num1);
+            double n2 = atof(num2);
+            p[n].x=n1;
+            p[n].y=n2;
+            n++;
+        }
+        point Q;
+        cin>>Q.x>>Q.y;
+        cin>>m;
+        //2.计算距离并排序
+        for(int i=0;i<n;i++)
+            p[i].distToQ = (p[i].x-Q.x)*(p[i].x-Q.x)+(p[i].y-Q.y)*(p[i].y-Q.y);
+        sort(p, p+n, cmp);
+        //3.输出
+        int coutCount=1;
+        for(int i=0;i<m;i++){
+            if(coutCount==1)
+                coutCount++;
+            else
+                cout<<",";
+            cout<<p[i].x<<" "<<p[i].y;
+        }
+        cout<<endl;
+        //4.清理变量
+        memset(str, '\0', sizeof(str));
+    }
+    return 0;
+}
+
+//4
+//3 5,6 2,5 8,9 3,8 6,1 1,2 9
+//8.2 4.6
+//4
+//3 5,6 2,5 8,9 3,8 6,1 1,2 9,6 9,10 12
+//3.6 9.7
+//2
+//3 5,6 2,5 8,9 3,8 6,1 1,2 9
+//8.2 4.6
+//5
+//3 5,6 2,5 8,9 3,8 6,1 1,2 9,6 9,10,12
+//3.6 9.7
+//3
+
+
+
+
+//
+//  main.cpp
+//  希尔排序
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+#include <sstream>
+using namespace std;
+int main(int argc, const char * argv[]) {
+    int testcase;
+    cin>>testcase;
+    cin.get();
+    while (--testcase>=0) {
+        //1.读取输入
+        int arr[10005],arrLength=0,temp;
+        string str;
+        getline(cin,str);
+        istringstream is(str);
+        while(is>>temp){
+            arr[arrLength]=temp;
+            arrLength++;
+        }
+        int step[105],stepLength=0;
+        string str2;
+        getline(cin,str2);
+        istringstream ii(str2);
+        while(ii>>temp){
+            step[stepLength]=temp;
+            stepLength++;
+        }
+        //2.希尔排序
+        for(int k=0;k<stepLength;k++){
+            int gap=step[k];
+            for(int i=gap;i<arrLength;i++){
+                if(arr[i]<arr[i-gap]){
+                    int tmp = arr[i];         //i为当前坑
+                    int j=i-gap;              //j为i的前一个坑（间隔为h）
+                    while(j>=0&&arr[j]>tmp){  //把元素比要插入的tmp大的全部往后挪动，空出一个坑给tmp插入
+                        arr[j+gap]=arr[j];
+                        j-=gap;
+                    }
+                    arr[j+gap]=tmp;
+                }
+            }
+        }
+        //3.输出
+        for(int i=0;i<arrLength;i++){
+            if(i==0)
+                cout<<arr[i];
+            else
+                cout<<" "<<arr[i];
+        }
+        cout<<endl;
+    }
+    return 0;
+}
+
+
+//
+//  main.cpp
+//  棋盘覆盖
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+#include <sstream>
+using namespace std;
+static int idx = 1;
+static int board[100][100] = {0};
+void cover_chess(int tr,int tc,int dr,int dc,int size){
+    if(size==1)
+        return;
+    size=size/2;
+    int t = idx++;
+    //特殊点在左上角
+    if(dr<tr+size&&dc<tc+size){
+        cover_chess(tr, tc, dr, dc, size);
+    }else{
+        board[tr+size-1][tc+size-1]=t;
+        cover_chess(tr, tc, tr+size-1, tc+size-1, size);
+    }
+    
+    //特殊点在右上角
+    if(dr<tr+size&&dc>tc+size-1){
+        cover_chess(tr, tc+size, dr, dc, size);
+    }else{
+        board[tr+size-1][tc+size]=t;
+        cover_chess(tr, tc+size, tr+size-1, tc+size, size);
+    }
+    
+    //特殊点在左下角
+    if(dr>tr+size-1&&dc<tc+size){
+        cover_chess(tr+size, tc, dr, dc, size);
+    }else{
+        board[tr+size][tc+size-1]=t;
+        cover_chess(tr+size, tc, tr+size, tc+size-1, size);
+    }
+    
+    //特殊点在右下角
+    if(dr>tr+size-1&&dc>tc+size-1){
+        cover_chess(tr+size, tc+size, dr, dc, size);
+    }else{
+        board[tr+size][tc+size]=t;
+        cover_chess(tr+size, tc+size, tr+size, tc+size, size);
+    }
+}
+void print(int n){
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++)
+            cout<<board[i][j]<<" ";
+        cout<<endl;
+    }
+}
+int main(int argc, const char * argv[]) {
+    int testcase;
+    cin>>testcase;
+    cin.get();
+    while(--testcase>=0){
+        int n,startx,starty,checkx,checky;
+        cin>>n>>startx>>starty>>checkx>>checky;
+        n=1<<n;
+        cover_chess(0, 0, startx, starty, n);
+        //print(n);
+        //输出
+        int coutCount = 1;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                if(!(i==checkx&&j==checky)&&board[i][j]==board[checkx][checky]){
+                    if(coutCount==1){
+                        cout<<i<<" "<<j<<",";
+                        coutCount++;
+                    }else
+                        cout<<i<<" "<<j<<endl;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+
+//
+//  main.cpp
+//  图的DFS
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+using namespace std;
+int graph[105][105];
+int vis[105];
+int max_depth=0;
+void dfs(int start,int cur_depth,int nodeNum){
+    vis[start]=1;
+    if(cur_depth>max_depth)
+        max_depth=cur_depth;
+    for(int i=0;i<nodeNum;i++){
+        if(graph[start][i]==0||vis[i]==true)
+            continue;
+        dfs(i,cur_depth+1,nodeNum);
+        vis[i]=false;
+    }
+}
+int main(int argc, const char * argv[]) {
+    int testcase;
+    cin>>testcase;
+    while(--testcase>=0){
+        int nodeNum=0;
+        cin>>nodeNum;
+        char startNode,temp;
+        cin>>startNode;
+        int startIndex = 0;
+        for(int i=0;i<nodeNum;i++){
+            cin>>temp;
+            if(temp==startNode)
+                startIndex=i;
+        }
+        for(int i=0;i<nodeNum;i++){
+            cin>>temp;
+            for(int j=0;j<nodeNum;j++){
+                cin>>graph[i][j];
+            }
+        }
+        dfs(startIndex,1,nodeNum);
+        cout<<max_depth<<endl;
+    }
+    
+    return 0;
+}
+
+
+
+
+//
+//  main.cpp
+//  分治法解最近点对问题
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+#include <algorithm>
+#include <string.h>
+#include <math.h>
+using namespace std;
+struct point{
+    double x;
+    double y;
+    double dist[3005];
+}p[3005];
+int cmp(point a,point b){
+    if(a.x!=b.x)
+        return a.x<b.x;
+    return a.y<b.y;
+}
+int main(int argc, const char * argv[]) {
+    int testcase;
+    cin>>testcase;
+    cin.get();
+    while(--testcase>=0){
+        char str[10005];
+        cin.getline(str, 10005);
+        int n=0;
+        for(int i=0;str[i];i++){
+            char num1[10],num2[10];
+            memset(num1,'\0',sizeof(num1));
+            memset(num2,'\0',sizeof(num2));
+            int index1=0,index2=0;
+            while(str[i]!=' '){
+                num1[index1++]=str[i++];
+            }
+            while(str[i]==' ')
+                i++;
+            while(str[i]!=','&&str[i])
+                num2[index2++]=str[i++];
+            double n1 = atof(num1);
+            double n2 = atof(num2);
+            //cout<<n1<< " "<<n2<<endl;
+            p[n].x=n1;
+            p[n].y=n2;
+            n++;
+        }
+        sort(p, p+n, cmp);
+        int min_dist = 2147483647;
+        for(int i=0;i<n;i++){
+            for(int j=i+1;j<n;j++){
+                int dist = (p[i].x-p[j].x)*(p[i].x-p[j].x) + (p[i].y-p[j].y)*(p[i].y-p[j].y);
+                if(dist<min_dist)
+                    min_dist=dist;
+                p[i].dist[j]= dist;
+                p[j].dist[i]= dist;
+            }
+        }
+        
+        int coutCount=1;
+        for(int i=0;i<n;i++){
+            for(int j=i+1;j<n;j++){
+                if(fabs(p[i].dist[j]-min_dist)<0.000001){
+                    if(coutCount==1){
+                        cout<<p[i].x<<" "<<p[i].y<<","<<p[j].x<<" "<<p[j].y;
+                        coutCount++;
+                    }else{
+                        cout<<","<<p[i].x<<" "<<p[i].y<<","<<p[j].x<<" "<<p[j].y;
+                    }
+                }
+            }
+        }
+        cout<<endl;
+    }
+    return 0;
+}
+
+
+//
+//  main.cpp
+//  图的BFS
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+#include <queue>
+#include <string.h>
+using namespace std;
+int graph[105][105];
+bool vis[105];
+char nodeName[105];
+void bfs(int start,int nodeNum){
+    memset(vis, false, sizeof(vis));
+    queue<int> q;
+    q.push(start);
+    vis[start]=true;
+    int coutCount =1;
+    while(!q.empty()){
+        int start = q.front();
+        if(coutCount==1){
+            cout<<nodeName[start];
+            coutCount++;
+        }else{
+            cout<<" "<<nodeName[start];
+        }
+        for(int i=0;i<nodeNum;i++){
+            if(vis[i]==true||graph[start][i]==0)
+                continue;
+            q.push(i);
+            vis[i]=true;
+        }
+        q.pop();
+    }
+    cout<<endl;
+}
+int main(int argc, const char * argv[]) {
+    int testcase;
+    cin>>testcase;
+    while(--testcase>=0){
+        int nodeNum=0,startIndex = 0;       //节点数目，起始下标
+        char startNode,temp;                //起始节点，临时变量
+        //1.输入
+        cin>>nodeNum;
+        cin>>startNode;
+        for(int i=0;i<nodeNum;i++){
+            cin>>nodeName[i];
+            if(nodeName[i]==startNode)
+                startIndex=i;
+        }
+        for(int i=0;i<nodeNum;i++){
+            cin>>temp;
+            for(int j=0;j<nodeNum;j++){
+                cin>>graph[i][j];
+            }
+        }
+        
+        //2.bfs
+        bfs(startIndex, nodeNum);
+    }
+    
+    return 0;
+}
+
+
+
+
+
+//
+//  main.cpp
+//  拓扑排序解的个数
+//
+//  Created by wjq on 19/2/20.
+//  Copyright © 2019年 wjq. All rights reserved.
+//
+
+#include <iostream>
+#include <stdio.h>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+const int maxn=30;
+int n;              //有效节点数
+int G[maxn][maxn];  //邻接矩阵
+int vis[maxn];      //标记节点是否访问过
+int ans[maxn];      //用来记录路径
+int cnt;            //用来记录深度
+int result = 0;     //用来记录路径数量
+bool mark[maxn];    //记录出现过的字母
+bool ok(int i,int cnt)  //如果在ans[0,cnt-1]出现了一个本应在i后面才出现的字母,那么返回false
+{
+    for(int j=0;j<cnt;j++)
+        if(G[i][ans[j]])
+            return false;
+    return true;
+}
+void dfs(int cnt)
+{
+    if(cnt==n){
+//        for(int i=0;i<n;i++)
+//            printf("%c",ans[i]+'a');
+//        printf("\n");
+        result++;
+    }else{
+        for(int i=0;i<26;i++){
+            if(mark[i]&&!vis[i]&&ok(i,cnt)){
+                vis[i]=1;
+                ans[cnt]=i;
+                dfs(cnt+1);
+                vis[i]=0;
+            }
+        }
+    }
+}
+int main(int argc, const char * argv[])
+{
+    int testcase;
+    cin>>testcase;
+    cin.get();
+    while(--testcase>=0){
+        char str[1000];
+        cin.getline(str,1000);
+        n=0;
+        result=0;
+        memset(mark,0,sizeof(mark));
+        memset(G,0,sizeof(G));
+        memset(vis,0,sizeof(vis));
+        for(int i=0;str[i];i++)
+            if(str[i]!=' '&&str[i]!=','&&mark[str[i]-'a']!=true)
+                mark[str[i]-'a']=true, n++;
+        for(int i=0;str[i];i++){
+            if(str[i]!=' '&&str[i]!=',')
+            {
+                int a,b;
+                a=str[i++]-'a';
+                while(str[i]==' ')
+                    i++;
+                b=str[i]-'a';
+                G[a][b]=1;
+            }
+        }
+        dfs(0);  //从深度为0开始搜索
+        cout<<result<<endl;
+    }
+    return 0;
+}
